@@ -9,6 +9,7 @@ import { UnlockCard } from "@/components/unlock-card"
 import { PaymentModal } from "@/components/payment-modal"
 import { PersonalityCard } from "@/components/personality-card"
 import { CelebrityMatch } from "@/components/celebrity-match"
+import { SaveToDrive } from "@/components/save-to-drive"
 import { useImageUpload } from "@/hooks/use-image-upload"
 import { useClickCounter } from "@/hooks/use-click-counter"
 import { useSoundEffect } from "@/hooks/use-sound-effect"
@@ -96,8 +97,9 @@ export default function ResultPage() {
               <CelebrityMatch />
             </div>
           </div>
-          <div className="flex items-start lg:pt-0">
+          <div className="flex flex-col gap-4 lg:pt-0">
             <UnlockCard onUnlock={handleUnlock} />
+            <SaveToDrive photos={photos} />
           </div>
         </div>
       </div>
