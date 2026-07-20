@@ -2,51 +2,37 @@
 
 import { useCallback, useState } from "react"
 
-const IMAGE_KEY = "kikir-uploaded-image"
+const IMAGES_KEY = "kikir-photos"
 const FRAME_KEY = "kikir-selected-frame"
 
 export function useImageUpload() {
-  const [image, setImage] = useState<string | null>(() => {
+  const [photos, setPhotos] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
-      return sessionStorage.getItem(IMAGE_KEY)
+      const stored = sessionStorage.getItem(IMAGES_KEY)
+      return stored ? JSON.parse(stored) : []
     }
-    return null
+    return []
   })
-  const [isUploading, setIsUploading] = useState(false)
-
-  const upload = useCallback((file: File) => {
-    return new Promise<string>((resolve, reject) => {
-      setIsUploading(true)
-      const reader = new FileReader()
-      reader.onload = () => {
-        const data = reader.result as string
-        sessionStorage.setItem(IMAGE_KEY, data)
-        setImage(data)
-        setIsUploading(false)
-        resolve(data)
-      }
-      reader.onerror = () => {
-        setIsUploading(false)
-        reject(new Error("Failed to read file"))
-      }
-      reader.readAsDataURL(file)
-    })
-  }, [])
+  const addPhoto = useCallback((dataUrl: string) => {
+    const updated = [...photos, dataUrl]
+    sessionStorage.setItem(IMAGES_KEY, JSON.stringify(updated))
+    setPhotos(updated)
+  }, [photos])
 
   const clear = useCallback(() => {
-    sessionStorage.removeItem(IMAGE_KEY)
+    sessionStorage.removeItem(IMAGES_KEY)
     sessionStorage.removeItem(FRAME_KEY)
-    setImage(null)
+    setPhotos([])
   }, [])
 
-  const getImage = useCallback(() => {
-    if (image) return image
-    const stored =
-      typeof window !== "undefined"
-        ? sessionStorage.getItem(IMAGE_KEY)
-        : null
-    return stored
-  }, [image])
+  const getPhotos = useCallback(() => {
+    if (photos.length > 0) return photos
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(IMAGES_KEY)
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  }, [photos])
 
   const setFrameId = useCallback((frameId: string) => {
     if (typeof window !== "undefined") {
@@ -62,11 +48,10 @@ export function useImageUpload() {
   }, [])
 
   return {
-    image,
-    isUploading,
-    upload,
+    photos,
+    addPhoto,
     clear,
-    getImage,
+    getPhotos,
     setFrameId,
     getFrameId,
   }

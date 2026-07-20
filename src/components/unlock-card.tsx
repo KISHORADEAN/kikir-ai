@@ -25,7 +25,7 @@ export function UnlockCard({ onUnlock }: UnlockCardProps) {
       </motion.div>
       <h2 className="mb-2 text-2xl font-bold">Locked</h2>
       <p className="mb-1 text-zinc-400">Unlock Full Photobooth Experience</p>
-      <p className="mb-6 text-3xl font-bold text-purple-400">Rp200.000</p>
+      <p className="mb-6 text-3xl font-bold text-purple-400">Rp99.900</p>
       <p className="mb-6 text-xs text-zinc-600">Lifetime Access</p>
       <Button
         onClick={onUnlock}

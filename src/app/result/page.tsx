@@ -12,20 +12,20 @@ import { CelebrityMatch } from "@/components/celebrity-match"
 import { useImageUpload } from "@/hooks/use-image-upload"
 import { useClickCounter } from "@/hooks/use-click-counter"
 import { useSoundEffect } from "@/hooks/use-sound-effect"
-import { ArrowLeft, Trophy } from "lucide-react"
+import { ArrowLeft, Trophy, Camera } from "lucide-react"
 
 export default function ResultPage() {
-  const { getImage, getFrameId } = useImageUpload()
+  const { getPhotos, getFrameId } = useImageUpload()
   const { playSuccess, playSad, playAchievement } = useSoundEffect()
   const [modalOpen, setModalOpen] = useState(false)
-  const image = getImage()
+  const photos = getPhotos()
   const frameId = getFrameId()
 
   useEffect(() => {
-    if (image) {
+    if (photos.length > 0) {
       playSuccess()
     }
-  }, [image, playSuccess])
+  }, [photos.length, playSuccess])
 
   const onLegendary = useCallback(() => {
     playAchievement()
@@ -43,17 +43,17 @@ export default function ResultPage() {
     setModalOpen(true)
   }
 
-  if (!image) {
+  if (photos.length === 0) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <Trophy className="mx-auto mb-4 h-16 w-16 text-zinc-600" />
-          <h1 className="mb-2 text-2xl font-bold">No Photo Found</h1>
+          <Camera className="mx-auto mb-4 h-16 w-16 text-zinc-600" />
+          <h1 className="mb-2 text-2xl font-bold">No Photos Found</h1>
           <p className="mb-8 text-zinc-400">
-            Take a photobooth photo first before trying to unlock it.
+            Take photobooth photos first before trying to unlock them.
           </p>
           <Link
             href="/upload"
@@ -82,15 +82,15 @@ export default function ResultPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <h1 className="mb-2 text-3xl font-bold">Your Photobooth Result</h1>
+          <h1 className="mb-2 text-3xl font-bold">Your Photobooth Strip</h1>
           <p className="text-sm text-zinc-500">
-            Our AI has finished analyzing your photo.
+            Our AI has finished analyzing your photos.
           </p>
         </motion.div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_auto]">
           <div className="space-y-4">
-            <LockedImage src={image} frameId={frameId} />
+            <LockedImage photos={photos} frameId={frameId} />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <PersonalityCard />
               <CelebrityMatch />

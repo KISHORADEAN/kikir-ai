@@ -18,7 +18,7 @@ const plans = [
   },
   {
     title: "PRO",
-    price: "Rp200.000",
+    price: "Rp99.900",
     description: "Absolutely Worth It*",
     features: [
       "Full HD Photobooth",

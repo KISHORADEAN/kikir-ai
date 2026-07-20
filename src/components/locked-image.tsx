@@ -3,15 +3,15 @@
 import { FrameOverlay } from "@/components/frame-overlay"
 
 interface LockedImageProps {
-  src: string
+  photos: string[]
   frameId: string
 }
 
-export function LockedImage({ src, frameId }: LockedImageProps) {
+export function LockedImage({ photos, frameId }: LockedImageProps) {
   return (
-    <div className="relative mx-auto max-w-2xl overflow-hidden rounded-2xl">
+    <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl">
       <div className="scale-110 blur-xl">
-        <FrameOverlay src={src} frameId={frameId} />
+        <FrameOverlay photos={photos} frameId={frameId} />
       </div>
       <div className="pointer-events-none absolute inset-0 bg-black/40" />
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
