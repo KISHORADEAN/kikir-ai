@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/sonner"
@@ -40,6 +41,7 @@ export default function RootLayout({
         <main className="flex-1 pt-16">{children}</main>
         <Footer />
         <Toaster />
+        <Analytics />
       </body>
     </html>
   )
