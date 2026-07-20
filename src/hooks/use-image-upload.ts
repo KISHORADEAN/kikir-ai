@@ -1,58 +1,65 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useSyncExternalStore } from "react"
 
 const IMAGES_KEY = "kikir-photos"
 const FRAME_KEY = "kikir-selected-frame"
 
+function getSnapshot(key: string) {
+  if (typeof window === "undefined") return null
+  try {
+    return sessionStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback)
+  return () => window.removeEventListener("storage", callback)
+}
+
+function useSessionItem(key: string) {
+  return useSyncExternalStore(
+    subscribe,
+    () => getSnapshot(key),
+    () => null
+  )
+}
+
 export function useImageUpload() {
-  const [photos, setPhotos] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem(IMAGES_KEY)
-      return stored ? JSON.parse(stored) : []
-    }
-    return []
-  })
+  const storedPhotos = useSessionItem(IMAGES_KEY)
+  const storedFrame = useSessionItem(FRAME_KEY)
+
+  const photos: string[] = storedPhotos ? JSON.parse(storedPhotos) : []
+  const frameId = storedFrame || "polaroid"
+  const loaded = typeof window !== "undefined"
+
   const addPhoto = useCallback((dataUrl: string) => {
-    const updated = [...photos, dataUrl]
+    const stored = sessionStorage.getItem(IMAGES_KEY)
+    const current: string[] = stored ? JSON.parse(stored) : []
+    const updated = [...current, dataUrl]
     sessionStorage.setItem(IMAGES_KEY, JSON.stringify(updated))
-    setPhotos(updated)
-  }, [photos])
+    window.dispatchEvent(new Event("storage"))
+  }, [])
 
   const clear = useCallback(() => {
     sessionStorage.removeItem(IMAGES_KEY)
     sessionStorage.removeItem(FRAME_KEY)
-    setPhotos([])
+    window.dispatchEvent(new Event("storage"))
   }, [])
 
-  const getPhotos = useCallback(() => {
-    if (photos.length > 0) return photos
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem(IMAGES_KEY)
-      return stored ? JSON.parse(stored) : []
-    }
-    return []
-  }, [photos])
-
-  const setFrameId = useCallback((frameId: string) => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(FRAME_KEY, frameId)
-    }
-  }, [])
-
-  const getFrameId = useCallback(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem(FRAME_KEY) || "polaroid"
-    }
-    return "polaroid"
+  const setFrameId = useCallback((id: string) => {
+    sessionStorage.setItem(FRAME_KEY, id)
+    window.dispatchEvent(new Event("storage"))
   }, [])
 
   return {
     photos,
+    frameId,
+    loaded,
     addPhoto,
     clear,
-    getPhotos,
     setFrameId,
-    getFrameId,
   }
 }

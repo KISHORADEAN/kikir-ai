@@ -9,24 +9,21 @@ import { UnlockCard } from "@/components/unlock-card"
 import { PaymentModal } from "@/components/payment-modal"
 import { PersonalityCard } from "@/components/personality-card"
 import { CelebrityMatch } from "@/components/celebrity-match"
-import { SaveToDrive } from "@/components/save-to-drive"
 import { useImageUpload } from "@/hooks/use-image-upload"
 import { useClickCounter } from "@/hooks/use-click-counter"
 import { useSoundEffect } from "@/hooks/use-sound-effect"
-import { ArrowLeft, Trophy, Camera } from "lucide-react"
+import { ArrowLeft, Trophy, Camera, Download } from "lucide-react"
 
 export default function ResultPage() {
-  const { getPhotos, getFrameId } = useImageUpload()
+  const { photos, frameId, loaded } = useImageUpload()
   const { playSuccess, playSad, playAchievement } = useSoundEffect()
   const [modalOpen, setModalOpen] = useState(false)
-  const photos = getPhotos()
-  const frameId = getFrameId()
 
   useEffect(() => {
-    if (photos.length > 0) {
+    if (loaded && photos.length > 0) {
       playSuccess()
     }
-  }, [photos.length, playSuccess])
+  }, [loaded, photos.length, playSuccess])
 
   const onLegendary = useCallback(() => {
     playAchievement()
@@ -42,6 +39,43 @@ export default function ResultPage() {
     playSad()
     incrementClicks()
     setModalOpen(true)
+  }
+
+  const handleDownload = useCallback(() => {
+    if (photos.length === 0) return
+    const canvas = document.createElement("canvas")
+    const img = new Image()
+    img.onload = () => {
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight * photos.length + (photos.length - 1) * 4
+      const ctx = canvas.getContext("2d")!
+      let y = 0
+      const drawNext = (idx: number) => {
+        const i = new Image()
+        i.onload = () => {
+          ctx.drawImage(i, 0, y)
+          y += i.naturalHeight + 4
+          if (idx < photos.length - 1) drawNext(idx + 1)
+          else {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const a = document.createElement("a")
+                a.href = URL.createObjectURL(blob)
+                a.download = `KIKIR-${Date.now()}.jpg`
+                a.click()
+              }
+            }, "image/jpeg", 0.92)
+          }
+        }
+        i.src = photos[idx]
+      }
+      drawNext(0)
+    }
+    img.src = photos[0]
+  }, [photos])
+
+  if (!loaded) {
+    return null
   }
 
   if (photos.length === 0) {
@@ -99,7 +133,13 @@ export default function ResultPage() {
           </div>
           <div className="flex flex-col gap-4 lg:pt-0">
             <UnlockCard onUnlock={handleUnlock} />
-            <SaveToDrive photos={photos} />
+            <button
+              onClick={handleDownload}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10"
+            >
+              <Download className="h-4 w-4" />
+              Download Strip
+            </button>
           </div>
         </div>
       </div>

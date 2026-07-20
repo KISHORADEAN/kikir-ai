@@ -27,12 +27,11 @@ const MAX_PHOTOS = 4
 
 export default function UploadPage() {
   const router = useRouter()
-  const { addPhoto, getPhotos, setFrameId, clear } = useImageUpload()
+  const { photos, addPhoto, setFrameId, clear } = useImageUpload()
   const { state, start } = useProcessing()
   const { playSuccess } = useSoundEffect()
   const [step, setStep] = useState<"webcam" | "preview" | "processing">("webcam")
   const [selectedFrame, setSelectedFrame] = useState("polaroid")
-  const photos = getPhotos()
 
   const handleCapture = (dataUrl: string) => {
     addPhoto(dataUrl)
